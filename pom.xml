@@ -9,6 +9,7 @@
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
+
 	<name>Booking System Microservices</name>
 	<description>Parent project for booking system microservices</description>
 
@@ -49,6 +50,27 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${spring-boot.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Mockito (included in spring-boot-starter-test, but explicit for clarity) -->
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>5.12.0</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-junit-jupiter</artifactId>
+				<version>5.12.0</version>
+				<scope>test</scope>
+			</dependency>
 			<!-- Spring Boot BOM -->
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
@@ -124,6 +146,71 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven-surefire-plugin.version}</version>
+					<configuration>
+						<skipTests>false</skipTests>
+						<includes>
+							<include>**/*Test.java</include>
+							<include>**/*Tests.java</include>
+						</includes>
+					</configuration>
+				</plugin>
+
+				<!-- Failsafe Plugin for Integration Tests -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>3.5.3</version>
+					<configuration>
+						<includes>
+							<include>**/*IT.java</include>
+							<include>**/*IntegrationTest.java</include>
+						</includes>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- JaCoCo Plugin for Code Coverage -->
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.12</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>test</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- OWASP Dependency Check -->
+				<plugin>
+					<groupId>org.owasp</groupId>
+					<artifactId>dependency-check-maven</artifactId>
+					<version>10.0.4</version>
+					<configuration>
+						<format>ALL</format>
+						<failBuildOnCVSS>7</failBuildOnCVSS>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
