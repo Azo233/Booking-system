@@ -1,5 +1,6 @@
 package com.booking.system.user_service.user_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,13 +36,15 @@ public class User {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    @JsonIgnore
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String password;
+
     @Size(max = 20, message = "Phone number must not exceed 20 characters")
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private UserStatus status = UserStatus.ACTIVE;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -51,18 +54,31 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public User() {
+    public boolean isPasswordEncoded() {
+        return this.password != null && this.password.startsWith("$2a$");
     }
 
-    public User(Long id, String firstName, String lastName, String email, String phoneNumber, UserStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
+    public User() {}
+
+    public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    }
+
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
+
+    public String getPasswordHash() {
+        return this.password;
+    }
+
+    public void setPasswordHash(String hashedPassword) {
+        this.password = hashedPassword;
     }
 
     public Long getId() {
@@ -105,14 +121,6 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -129,7 +137,18 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    enum UserStatus {
-        ACTIVE, INACTIVE, SUSPENDED
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
