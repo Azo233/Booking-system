@@ -3,9 +3,13 @@ package com.booking.system.user_service.user_service.service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class PasswordService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PasswordService.class);
 
     private final PasswordEncoder passwordEncoder;
 
@@ -19,6 +23,18 @@ public class PasswordService {
 
     public boolean isPasswordHashed(String password) {
         return password != null && password.startsWith("$2a$");
+    }
+    public String hashPassword(String plainPassword) {
+        if (plainPassword == null || plainPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+
+        logger.debug("Hashing password (length: {})", plainPassword.length());
+
+        String hashedPassword = passwordEncoder.encode(plainPassword);
+
+        logger.debug("Password hashed successfully");
+        return hashedPassword;
     }
 
     public boolean isPasswordStrong(String password) {
